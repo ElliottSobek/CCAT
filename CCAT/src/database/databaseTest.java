@@ -25,22 +25,19 @@ public class databaseTest {
 
     private final Connection con;
 
-    public databaseTest() {
+    public databaseTest() throws ClassNotFoundException {
         this.con = getConnection();
     }
 
-    private Connection getConnection() {
+    private Connection getConnection() throws ClassNotFoundException {
         try {
-            System.out.println("1");
-//            Class.forName("org.sqlite.JDBC"); // Fails in jar
-            InputStream in = this.getClass().getResourceAsStream("org.sqlite.JDBC"); // Works but unsure if needed
-//            URL in = this.getClass().getResource("org.slite.JDBC");
-            System.out.println("2");
-            Connection conn = DriverManager.getConnection("jdbc:sqlite::resource:ccat.sqlite"); // Current fail line
-            System.out.println("3");
+            Class.forName("org.sqlite.JDBC");
+            Connection conn = DriverManager.getConnection("jdbc:sqlite::resource:ccat.sqlite");
+            System.out.println("Connection Successful");
             return conn;
         } catch (SQLException e) {
             System.err.println("Connection failed");
+            System.err.println(e);
             System.exit(1);
         }
         return null;

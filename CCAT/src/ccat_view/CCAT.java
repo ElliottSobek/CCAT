@@ -72,8 +72,9 @@ public class CCAT extends Application {
 
     /**
      * @param args the command line arguments
+     * @throws java.lang.ClassNotFoundException
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException {
         databaseTest db = new databaseTest();
         
         List<String> list = new ArrayList<>();
