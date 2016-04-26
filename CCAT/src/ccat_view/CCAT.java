@@ -5,7 +5,10 @@
  */
 package ccat_view;
 
+import database.databaseTest;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.KeyFrame;
@@ -71,7 +74,15 @@ public class CCAT extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        launch(args);
+        databaseTest db = new databaseTest();
+        
+        List<String> list = new ArrayList<>();
+        list = db.readDB();
+        for (String s : list) {
+            System.out.println(s);
+        }
+        System.exit(0);
+//        launch(args);
     }
 
 }
