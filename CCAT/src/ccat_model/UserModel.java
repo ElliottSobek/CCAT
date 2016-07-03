@@ -16,10 +16,19 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
+import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Series;
 
 /**
@@ -291,8 +300,9 @@ public class UserModel {
      * 
      * @param option
      * @return Series<Number, Number> <- xAxis, yAxis. Date/Time, Percentage
+     * @throws java.sql.SQLException
      */
-    public Series<Number, Number> getSeries (String option) {
+    public Series<Number, Number> getSeries (String option) throws SQLException, ParseException {
         switch (option) {
             case "day":
                 return daySeries();
@@ -413,7 +423,7 @@ public class UserModel {
      * 
      * @return 
      */
-    private Series<Number, Number> daySeries() {
+    private Series<Number, Number> daySeries() throws SQLException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -421,8 +431,30 @@ public class UserModel {
      * 
      * @return 
      */
-    private Series<Number, Number> weekSeries() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    private Series<Number, Number> weekSeries() throws SQLException, ParseException {
+        PreparedStatement statement = con.prepareStatement("select created, avg(score) as 'AvgAuditScore' from audits where created >= datetime('now', '-8 days') group by created");
+        ResultSet result = statement.executeQuery();
+        XYChart.Series<Number, Number> series = new XYChart.Series<>();
+        series.setName("Day Series Portfolio");
+        DateFormat df = new SimpleDateFormat("dd-MM-yyyy", Locale.CANADA);
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date date = new GregorianCalendar(2016, Calendar.JUNE, 02).getTime();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        System.out.println("Bob: " + Integer.toString(day));
+        while (result.next()) {
+//            Date convertDate = new java.sql.Date(df.parse(result.getString("created")).getTime());
+//            System.out.println("This is Created columb " + result.getString("created"));
+//              System.out.println("This is Created columb " + result.getTimestamp("created").toString());
+//            System.out.println("This is Created columb " + result.getDate("created").toString());
+            Date convertDate = new java.sql.Date(df.parse(result.getString("created")).getTime());
+
+//            System.out.println("This is Created columb " + convertDate);
+            System.out.println("This is AvgAuditScore: " + result.getInt("AvgAuditScore"));
+//            series.getData().add(new XYChart.Data(result.getDate("created").toString(), result.getInt("AvgAuditScore")));
+        }
+        return series;
     }
 
     /**

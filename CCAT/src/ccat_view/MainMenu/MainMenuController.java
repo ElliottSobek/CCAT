@@ -26,6 +26,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -265,6 +266,7 @@ public class MainMenuController implements Initializable {
      * 
      */
     private void initializeAuditChart() throws ClassNotFoundException, SQLException {
+        UserModel userModel = new UserModel();
         NumberAxis xAxis = new NumberAxis(0.0, 24.0, 1.0);
         NumberAxis yAxis = new NumberAxis(0.0, 100.0, 5.0);
         xAxis.setLabel("Hour");
@@ -276,6 +278,7 @@ public class MainMenuController implements Initializable {
         System.out.println("Chart Anchor Width: " + this.chartAnchor.getWidth());
         System.out.println("Chart Anchor Height: " + this.chartAnchor.getHeight());
         this.chartAnchor.getChildren().add(chart);
+//        chart.getData().add(userModel.getSeries("day"));
         
         this.dateFilterChoice = new ToggleGroup();
         this.day.setToggleGroup(dateFilterChoice);
@@ -283,15 +286,17 @@ public class MainMenuController implements Initializable {
         this.month.setToggleGroup(dateFilterChoice);
         this.quarter.setToggleGroup(dateFilterChoice);
         
-        UserModel userModel = new UserModel();
-        
         this.day.setOnAction((ActionEvent e) -> {
             chart.setTitle("Audit Averages for Current day");
             xAxis.setLabel("Hour");
             xAxis.setLowerBound(0.0);
             xAxis.setUpperBound(24.0);
             xAxis.setTickUnit(1.0);
-            // chart.getData().add(userModel.getSeries("day"));
+            try {
+                chart.getData().add(userModel.getSeries("day"));
+            } catch (SQLException | ParseException ex) {
+                Logger.getLogger(MainMenuController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
         this.week.setOnAction((ActionEvent e) -> {
             chart.setTitle("Audit Averages for Current Week");
@@ -299,7 +304,11 @@ public class MainMenuController implements Initializable {
             xAxis.setLowerBound(1.0);
             xAxis.setUpperBound(7.0);
             xAxis.setTickUnit(1.0);
-            // chart.getData().add(userModel.getSeries("week"));
+            try {
+                chart.getData().add(userModel.getSeries("week"));
+            } catch (SQLException | ParseException ex) {
+                Logger.getLogger(MainMenuController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
         this.month.setOnAction((ActionEvent e) -> {
             chart.setTitle("Audit Averages by Month");
@@ -307,7 +316,11 @@ public class MainMenuController implements Initializable {
             xAxis.setLowerBound(1.0);
             xAxis.setUpperBound(12.0);
             xAxis.setTickUnit(1.0);
-            // chart.getData().add(userModel.getSeries("month"));
+            try {
+                chart.getData().add(userModel.getSeries("month"));
+            } catch (SQLException | ParseException ex) {
+                Logger.getLogger(MainMenuController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
         this.quarter.setOnAction((ActionEvent e) -> {
             chart.setTitle("Audit Averages by Business Quarter");
@@ -315,7 +328,11 @@ public class MainMenuController implements Initializable {
             xAxis.setLowerBound(1.0);
             xAxis.setUpperBound(4.0);
             xAxis.setTickUnit(1.0);
-            // chart.getData().add(userModel.getSeries("quarter"));
+            try {
+                chart.getData().add(userModel.getSeries("quarter"));
+            } catch (SQLException | ParseException ex) {
+                Logger.getLogger(MainMenuController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });        
     }
 
@@ -345,13 +362,8 @@ public class MainMenuController implements Initializable {
 
         try {
             populateTabs();
-        } catch (SQLException ex) {
-            Logger.getLogger(MainMenuController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        try {
             initializeAuditChart();
-        } catch (ClassNotFoundException | SQLException ex) {
+        } catch (SQLException | ClassNotFoundException ex) {
             Logger.getLogger(MainMenuController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
