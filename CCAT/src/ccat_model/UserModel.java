@@ -22,7 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -301,17 +300,18 @@ public class UserModel {
      * @param option
      * @return Series<Number, Number> <- xAxis, yAxis. Date/Time, Percentage
      * @throws java.sql.SQLException
+     * @throws java.text.ParseException
      */
-    public Series<Number, Number> getSeries (String option) throws SQLException, ParseException {
+    public Series<String, Number> getSeries (String option) throws SQLException, ParseException {
         switch (option) {
             case "day":
-                return daySeries();
+//                return daySeries();
             case "week":
                 return weekSeries();
             case "month":
-                return monthSeries();
+//                return monthSeries();
             case "quarter":
-                return quarterSeries();
+//                return quarterSeries();
             default:
                 System.err.println("Invalid input");
                 return null;
@@ -423,7 +423,7 @@ public class UserModel {
      * 
      * @return 
      */
-    private Series<Number, Number> daySeries() throws SQLException {
+    private Series<String, Number> daySeries() throws SQLException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -431,28 +431,17 @@ public class UserModel {
      * 
      * @return 
      */
-    private Series<Number, Number> weekSeries() throws SQLException, ParseException {
-        PreparedStatement statement = con.prepareStatement("select created, avg(score) as 'AvgAuditScore' from audits where created >= datetime('now', '-8 days') group by created");
+    private Series<String, Number> weekSeries() throws SQLException, ParseException {
+        PreparedStatement statement = con.prepareStatement("select created, "
+                + "avg(score) as 'AvgAuditScore' from audits where created >= "
+                + "datetime('now', '-8 days') group by created");
         ResultSet result = statement.executeQuery();
-        XYChart.Series<Number, Number> series = new XYChart.Series<>();
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName("Day Series Portfolio");
-        DateFormat df = new SimpleDateFormat("dd-MM-yyyy", Locale.CANADA);
-        df.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date date = new GregorianCalendar(2016, Calendar.JUNE, 02).getTime();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        int day = cal.get(Calendar.DAY_OF_MONTH);
-        System.out.println("Bob: " + Integer.toString(day));
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.CANADA);
         while (result.next()) {
-//            Date convertDate = new java.sql.Date(df.parse(result.getString("created")).getTime());
-//            System.out.println("This is Created columb " + result.getString("created"));
-//              System.out.println("This is Created columb " + result.getTimestamp("created").toString());
-//            System.out.println("This is Created columb " + result.getDate("created").toString());
-            Date convertDate = new java.sql.Date(df.parse(result.getString("created")).getTime());
-
-//            System.out.println("This is Created columb " + convertDate);
-            System.out.println("This is AvgAuditScore: " + result.getInt("AvgAuditScore"));
-//            series.getData().add(new XYChart.Data(result.getDate("created").toString(), result.getInt("AvgAuditScore")));
+            int day = getDayOfMonth(result.getString("created"), df);
+            series.getData().add(new XYChart.Data(Integer.toString(day), result.getInt("AvgAuditScore")));
         }
         return series;
     }
@@ -461,7 +450,7 @@ public class UserModel {
      * 
      * @return 
      */
-    private Series<Number, Number> monthSeries() {
+    private Series<String, Number> monthSeries() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -469,8 +458,16 @@ public class UserModel {
      * 
      * @return 
      */
-    private Series<Number, Number> quarterSeries() {
+    private Series<String, Number> quarterSeries() {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    private int getDayOfMonth(String s, DateFormat df) throws ParseException {
+        Date d = df.parse(s);
+//        df.setTimeZone(TimeZone.getTimeZone("UTC")); // This causes a bug?
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(d);
+        return cal.get(Calendar.DAY_OF_MONTH);
     }
 
 }

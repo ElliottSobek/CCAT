@@ -28,9 +28,11 @@ import javafx.stage.Stage;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.RadioButton;
@@ -267,11 +269,11 @@ public class MainMenuController implements Initializable {
      */
     private void initializeAuditChart() throws ClassNotFoundException, SQLException {
         UserModel userModel = new UserModel();
-        NumberAxis xAxis = new NumberAxis(0.0, 24.0, 1.0);
+        CategoryAxis xAxis = new CategoryAxis();
         NumberAxis yAxis = new NumberAxis(0.0, 100.0, 5.0);
         xAxis.setLabel("Hour");
         yAxis.setLabel("%");
-        LineChart<Number, Number> chart = new LineChart<>(xAxis, yAxis);
+        LineChart<String, Number> chart = new LineChart<>(xAxis, yAxis);
         chart.setTitle("Audit Averages for Current day");
         chart.setPrefSize(520.0,338.0); // Bug with parent width & height
 //        chart.setPrefSize(this.chartAnchor.getWidth(),this.chartAnchor.getHeight());
@@ -287,23 +289,17 @@ public class MainMenuController implements Initializable {
         this.quarter.setToggleGroup(dateFilterChoice);
         
         this.day.setOnAction((ActionEvent e) -> {
+            chart.getData().clear();
             chart.setTitle("Audit Averages for Current day");
             xAxis.setLabel("Hour");
-            xAxis.setLowerBound(0.0);
-            xAxis.setUpperBound(24.0);
-            xAxis.setTickUnit(1.0);
-            try {
-                chart.getData().add(userModel.getSeries("day"));
-            } catch (SQLException | ParseException ex) {
-                Logger.getLogger(MainMenuController.class.getName()).log(Level.SEVERE, null, ex);
-            }
         });
         this.week.setOnAction((ActionEvent e) -> {
+            chart.getData().clear();
             chart.setTitle("Audit Averages for Current Week");
             xAxis.setLabel("Day of Current Week");
-            xAxis.setLowerBound(1.0);
-            xAxis.setUpperBound(7.0);
-            xAxis.setTickUnit(1.0);
+//            xAxis.setLowerBound(27.0);
+//            xAxis.setUpperBound(3.0);
+//            xAxis.setTickUnit(1.0);
             try {
                 chart.getData().add(userModel.getSeries("week"));
             } catch (SQLException | ParseException ex) {
@@ -311,28 +307,14 @@ public class MainMenuController implements Initializable {
             }
         });
         this.month.setOnAction((ActionEvent e) -> {
+            chart.getData().clear();
             chart.setTitle("Audit Averages by Month");
             xAxis.setLabel("Month of Current Year");
-            xAxis.setLowerBound(1.0);
-            xAxis.setUpperBound(12.0);
-            xAxis.setTickUnit(1.0);
-            try {
-                chart.getData().add(userModel.getSeries("month"));
-            } catch (SQLException | ParseException ex) {
-                Logger.getLogger(MainMenuController.class.getName()).log(Level.SEVERE, null, ex);
-            }
         });
         this.quarter.setOnAction((ActionEvent e) -> {
+            chart.getData().clear();
             chart.setTitle("Audit Averages by Business Quarter");
             xAxis.setLabel("Quarter of Current Year");
-            xAxis.setLowerBound(1.0);
-            xAxis.setUpperBound(4.0);
-            xAxis.setTickUnit(1.0);
-            try {
-                chart.getData().add(userModel.getSeries("quarter"));
-            } catch (SQLException | ParseException ex) {
-                Logger.getLogger(MainMenuController.class.getName()).log(Level.SEVERE, null, ex);
-            }
         });        
     }
 
